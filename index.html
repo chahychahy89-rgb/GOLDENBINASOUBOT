@@ -1,65 +1,44 @@
-<div class="action-btn" onclick="openBox()">🎁 صندوق الحظ<br><small id="boxTimer">جاهز</small></div>
-        </div>
-    </div>
-    <div id="tasks" class="page">
-        <h2 style="color: var(--gold);">🏆 المتصدرين</h2>
-        <div id="leaderboard" style="background: var(--card); border-radius: 15px; padding: 15px;"></div>
-        <h2 style="color: var(--gold); margin-top: 25px;">📢 المهام</h2>
-        <div class="action-btn" style="width: 100%; box-sizing: border-box;" onclick="share()">دعوة صديق (+10,000 نقطة)</div>
-    </div>
-</div>
-<nav class="nav-bar">
-    <div class="nav-item active" onclick="showPage('home')">⛏️<br>تعدين</div>
-    <div class="nav-item" onclick="showPage('tasks')">🏆<br>النخبة</div>
-</nav>
 <script>
-    let gold = parseInt(localStorage.getItem('gold')) || 0;
-    let energy = parseInt(localStorage.getItem('energy')) || 1000;
-    let boxTime = localStorage.getItem('boxTime') || 0;
-    const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "4820" }) : null;
-    function updateUI() {
+    let gold = parseInt(localStorage.getItem('g_bal')) || 0;
+    let energy = parseInt(localStorage.getItem('g_nrg')) || 1000;
+    let nextBox = localStorage.getItem('g_box') || 0;
+    // استبدل 4820 بمعرفك الحقيقي من Adsgram للربح
+    const ads = window.Adsgram ? window.Adsgram.init({ blockId: "4820" }) : null;
+
+    function update() {
         document.getElementById('score').innerText = gold.toLocaleString();
-        document.getElementById('energyFill').style.width = (energy / 10) + '%';
+        document.getElementById('energyFill').style.width = (energy/10) + '%';
         document.getElementById('energyText').innerText = ⚡ ${energy} / 1000;
-        localStorage.setItem('gold', gold);
-        localStorage.setItem('energy', energy);
-        let now = Date.now();
-        if(boxTime > now) {
-            let diff = Math.ceil((boxTime - now)/1000);
-            document.getElementById('boxTimer').innerText = Math.floor(diff/60) + ":" + (diff%60);
-        } else { document.getElementById('boxTimer').innerText = "جاهز الآن"; }
+        localStorage.setItem('g_bal', gold);
+        localStorage.setItem('g_nrg', energy);
+        let d = nextBox - Date.now();
+        document.getElementById('timer').innerText = d > 0 ? Math.ceil(d/60000)+" دقيقة" : "جاهز";
     }
+
     document.getElementById('coinBtn').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        if(energy >= 1) { gold += 1; energy -= 1; updateUI(); }
+        if(energy >= 1) { gold += 1; energy -= 1; update(); }
     });
-    setInterval(() => { if(energy < 1000) { energy += 2; updateUI(); } }, 2000);
+
+    setInterval(() => { if(energy < 1000) { energy += 2; update(); } }, 2000);
+
     function watchAd() {
-        if(AdController) { AdController.show().then(() => { gold += 100; updateUI(); }); }
-        else { gold += 100; updateUI(); }
+        if(ads) { ads.show().then(() => { gold += 100; update(); }); }
+        else { gold += 100; update(); }
     }
+
     function openBox() {
-        if(Date.now() < boxTime) return alert("الصندوق يجهز...");
-        watchAd();
-        boxTime = Date.now() + (15 * 60 * 1000);
-        localStorage.setItem('boxTime', boxTime);
+        if(Date.now() < nextBox) return alert("انتظر شحن الصندوق!");
+        watchAd(); // الصندوق يفتح بمشاهدة إعلان لزيادة أرباحك
+        nextBox = Date.now() + 900000; // 15 دقيقة
+        localStorage.setItem('g_box', nextBox);
     }
+
     function showPage(p) {
-        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
         document.getElementById(p).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        if(p === 'tasks') renderLeaderboard();
+        if(p === 'leader') renderLeader();
     }
-    function renderLeaderboard() {
-        const users = [{n: "مـحـمد", s: 1250000}, {n: "سـارة", s: 980000}, {n: "أنـت", s: gold}].sort((a,b) => b.s - a.s);
-        document.getElementById('leaderboard').innerHTML = users.map((u, i) => 
-            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222">
-                <span>${i+1}. ${u.n}</span><span style="color:var(--gold)">${u.s.toLocaleString()}</span>
-            </div>).join('');
-    }
-    function share() { window.open('https://t.me/share/url?url=https://t.me/golden_binasou_bot&text=اربح الذهب معي!'); }
-    updateUI();
-</script>
-</body>
-</html>
+
+    function renderLeader() {
+        const u = [{n:"محمد", s:15000},
