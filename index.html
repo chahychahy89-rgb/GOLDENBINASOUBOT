@@ -1,42 +1,11 @@
-function refresh() {
-        document.getElementById('score').innerText = pts.toLocaleString();
-        document.getElementById('energyBar').style.width = (nrg/10) + '%';
-        document.getElementById('energyText').innerText = ⚡ ${nrg} / 1000;
-        localStorage.setItem('b_pts', pts);
-        localStorage.setItem('b_nrg', nrg);
-        let wait = box - Date.now();
-        document.getElementById('boxStat').innerText = wait > 0 ? Math.ceil(wait/60000)+" دقيقة" : "جاهز";
-    }
+</div>
+    
+    <div id="top-pg" class="page">
+        <h2 style="color:var(--gold)">🏆 المتصدرين</h2>
+        <div id="leaderList" style="background:var(--card); border-radius:15px; padding:15px;"></div>
+        <div class="card" style="margin-top:20px; width:100%; box-sizing:border-box;" onclick="invite()">📢 دعوة صديق (+10,000)</div>
+    </div>
+</div>
 
-    document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if(nrg >= 1) { pts += 1; nrg -= 1; refresh(); }
-    });
-
-    setInterval(() => { if(nrg < 1000) { nrg += 2; refresh(); } }, 2000);
-
-    function showAd() {
-        if(AdSDK) { AdSDK.show().then(() => { pts += 100; refresh(); }); }
-        else { pts += 100; refresh(); }
-    }
-
-    function openBox() {
-        if(Date.now() < box) return alert("الصندوق فارغ!");
-        showAd();
-        box = Date.now() + 900000;
-        localStorage.setItem('b_box', box);
-    }
-
-    function nav(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(id === 'p-top') {
-            const users = [{n:"محمد", s:25000}, {n:"أنت", s:pts}].sort((a,b)=>b.s-a.s);
-            document.getElementById('leader-list').innerHTML = users.map((u,i)=><div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222"><span>${i+1}. ${u.n}</span><span style="color:var(--gold)">${u.s}</span></div>).join('');
-        }
-    }
-    function share() { window.open('https://t.me/share/url?url=https://t.me/golden_binasou_bot&text=اربح الذهب!'); }
-    refresh();
-</script>
-</body>
-</html>
+<nav class="nav">
+    <div class="nav-link active" onclick="go('mine-pg')">
