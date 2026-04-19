@@ -1,44 +1,42 @@
-<script>
-    let gold = parseInt(localStorage.getItem('g_bal')) || 0;
-    let energy = parseInt(localStorage.getItem('g_nrg')) || 1000;
-    let nextBox = localStorage.getItem('g_box') || 0;
-    // استبدل 4820 بمعرفك الحقيقي من Adsgram للربح
-    const ads = window.Adsgram ? window.Adsgram.init({ blockId: "4820" }) : null;
-
-    function update() {
-        document.getElementById('score').innerText = gold.toLocaleString();
-        document.getElementById('energyFill').style.width = (energy/10) + '%';
-        document.getElementById('energyText').innerText = ⚡ ${energy} / 1000;
-        localStorage.setItem('g_bal', gold);
-        localStorage.setItem('g_nrg', energy);
-        let d = nextBox - Date.now();
-        document.getElementById('timer').innerText = d > 0 ? Math.ceil(d/60000)+" دقيقة" : "جاهز";
+function refresh() {
+        document.getElementById('score').innerText = pts.toLocaleString();
+        document.getElementById('energyBar').style.width = (nrg/10) + '%';
+        document.getElementById('energyText').innerText = ⚡ ${nrg} / 1000;
+        localStorage.setItem('b_pts', pts);
+        localStorage.setItem('b_nrg', nrg);
+        let wait = box - Date.now();
+        document.getElementById('boxStat').innerText = wait > 0 ? Math.ceil(wait/60000)+" دقيقة" : "جاهز";
     }
 
-    document.getElementById('coinBtn').addEventListener('touchstart', (e) => {
+    document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        if(energy >= 1) { gold += 1; energy -= 1; update(); }
+        if(nrg >= 1) { pts += 1; nrg -= 1; refresh(); }
     });
 
-    setInterval(() => { if(energy < 1000) { energy += 2; update(); } }, 2000);
+    setInterval(() => { if(nrg < 1000) { nrg += 2; refresh(); } }, 2000);
 
-    function watchAd() {
-        if(ads) { ads.show().then(() => { gold += 100; update(); }); }
-        else { gold += 100; update(); }
+    function showAd() {
+        if(AdSDK) { AdSDK.show().then(() => { pts += 100; refresh(); }); }
+        else { pts += 100; refresh(); }
     }
 
     function openBox() {
-        if(Date.now() < nextBox) return alert("انتظر شحن الصندوق!");
-        watchAd(); // الصندوق يفتح بمشاهدة إعلان لزيادة أرباحك
-        nextBox = Date.now() + 900000; // 15 دقيقة
-        localStorage.setItem('g_box', nextBox);
+        if(Date.now() < box) return alert("الصندوق فارغ!");
+        showAd();
+        box = Date.now() + 900000;
+        localStorage.setItem('b_box', box);
     }
 
-    function showPage(p) {
-        document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-        document.getElementById(p).classList.add('active');
-        if(p === 'leader') renderLeader();
+    function nav(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'p-top') {
+            const users = [{n:"محمد", s:25000}, {n:"أنت", s:pts}].sort((a,b)=>b.s-a.s);
+            document.getElementById('leader-list').innerHTML = users.map((u,i)=><div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222"><span>${i+1}. ${u.n}</span><span style="color:var(--gold)">${u.s}</span></div>).join('');
+        }
     }
-
-    function renderLeader() {
-        const u = [{n:"محمد", s:15000},
+    function share() { window.open('https://t.me/share/url?url=https://t.me/golden_binasou_bot&text=اربح الذهب!'); }
+    refresh();
+</script>
+</body>
+</html>
